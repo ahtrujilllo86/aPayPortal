@@ -18,15 +18,15 @@ const INVALID_CARDS = ['0000000000000000', '1234567812345678'];
  * POST /link/generate
  */
 app.post('/link/generate', (req, res) => {
-    const { ammount, remote, conversationId } = req.body;
+    const { totalPago, remote, conversationId } = req.body;
 
     const baseUrl = process.env.BASE_URL;
 
-    const url = `${baseUrl}/?ammount=${encodeURIComponent(ammount)}&remote=${encodeURIComponent(remote)}&conversationId=${encodeURIComponent(conversationId)}`;
+    const paymentUrl = `${baseUrl}/?totalPago=${encodeURIComponent(totalPago)}&remote=${encodeURIComponent(remote)}&conversationId=${encodeURIComponent(conversationId)}`;
 
     return res.json({
         success: true,
-        url,
+        paymentUrl,
     });
 });
 
@@ -36,9 +36,9 @@ app.post('/link/generate', (req, res) => {
  * Renderiza la pasarela
  */
 app.get('/', (req, res) => {
-    const { ammount, remote, conversationId } = req.query;
+    const { totalPago, remote, conversationId } = req.query;
 
-    if (!ammount || !remote || !conversationId) {
+    if (!totalPago || !remote || !conversationId) {
         return res.status(400).send('Parámetros incompletos');
     }
 
@@ -188,7 +188,7 @@ app.get('/', (req, res) => {
                 </div>
 
                 <form method="POST" action="/pay">
-                <input type="hidden" name="ammount" value="{{ammount}}">
+                <input type="hidden" name="totalPago" value="{{totalPago}}">
                 <input type="hidden" name="remote" value="{{remote}}">
                 <input type="hidden" name="conversationId" value="{{conversationId}}">
 
@@ -241,10 +241,10 @@ app.get('/', (req, res) => {
         </body>
         </html>
   `;
-    res.send(html.replace('{{ammount}}', ammount)
+    res.send(html.replace('{{totalPago}}', totalPago)
         .replace('{{remote}}', remote)
         .replace('{{conversationId}}', conversationId)
-        .replace('$123 MXN', `$${ammount} MXN`));
+        .replace('$123 MXN', `$${totalPago} MXN`));
 });
 
 /**
@@ -252,7 +252,7 @@ app.get('/', (req, res) => {
  * POST /pay
  */
 app.post('/pay', async (req, res) => {
-    const { ammount, remote, conversationId, card } = req.body;
+    const { totalPago, remote, conversationId, card } = req.body;
 
     const approved = VALID_CARDS.includes(card);
 
@@ -298,7 +298,7 @@ app.post('/pay', async (req, res) => {
         <body>
         <div class="box">
             <h1>${approved ? '✅ Pago Aprobado' : '❌ Pago Rechazado'}</h1>
-            <p>Monto: $${ammount}</p>
+            <p>Monto: $${totalPago}</p>
             <p>Referencia: ${ipgTransactionId}</p><br>
             <h3>${approved ? 'Continua en el bot' : 'Intenta con otro metodo de pago'}</h3>
         </div>
