@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+require('dotenv').config;
+
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -18,7 +20,7 @@ const INVALID_CARDS = ['0000000000000000', '1234567812345678'];
 app.post('/link/generate', (req, res) => {
     const { ammount, remote, conversationId } = req.body;
 
-    const baseUrl = 'http://localhost:3000';
+    const baseUrl = process.env.BASE_URL;
 
     const url = `${baseUrl}/?ammount=${encodeURIComponent(ammount)}&remote=${encodeURIComponent(remote)}&conversationId=${encodeURIComponent(conversationId)}`;
 
@@ -316,7 +318,7 @@ async function sendWebhookPayment({
 }) {
     try {
         const response = await fetch(
-            'https://cbots-dev.yggs.io/atlas/webhook',
+            process.env.WEBHOOK_URL,
             {
                 method: 'POST',
                 headers: {
